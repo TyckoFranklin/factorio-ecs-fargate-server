@@ -4,7 +4,7 @@ import { ManagedPolicy, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 import { Cluster, Compatibility, ContainerImage, FargateService, LogDriver, NetworkMode, TaskDefinition } from "aws-cdk-lib/aws-ecs";
 import { Peer, Port, SecurityGroup, Vpc } from "aws-cdk-lib/aws-ec2";
 import { Protocol } from "aws-cdk-lib/aws-ecs";
-import { LifecyclePolicy, PerformanceMode, ThroughputMode, FileSystem, } from "aws-cdk-lib/aws-efs";
+import { LifecyclePolicy, PerformanceMode, ThroughputMode, FileSystem, AccessPoint, } from "aws-cdk-lib/aws-efs";
 import { LogGroup } from "aws-cdk-lib/aws-logs";
 
 export function createFargate(stack: Construct) {
@@ -20,6 +20,7 @@ export function createFargate(stack: Construct) {
     vpcName:"factorio-ecs-fargate-server-vpc",
   });
 
+  const fargateFactorioServerRoleName =  "Factorio-server-ecs-task-role"
   const fargateFactorioServerRole = new Role(stack, "Factorio-server-ecs-task-role", {
     assumedBy: new ServicePrincipal("ecs-tasks.amazonaws.com"),
     managedPolicies: [
@@ -27,12 +28,28 @@ export function createFargate(stack: Construct) {
         "service-role/AmazonECSTaskExecutionRolePolicy"
       ),
     ],
+    roleName:`${deploymentType}-${fargateFactorioServerRoleName}`,
   });
 
-  const efsSG = new SecurityGroup(stack, "factorio-server-efs-security-group", {
+  const efsSecurityGroupName = "factorio-server-efs-security-group"
+  const efsSG = new SecurityGroup(stack, efsSecurityGroupName, {
     vpc,
     allowAllOutbound: true,
+    securityGroupName: `${deploymentType}-${efsSecurityGroupName}`,
   });
+
+  const ec2EFSMaintenanceSecurityGroupName = "factorio-server-efs-ec2-maintenance-security-group"
+  const ec2EFSMaintenanceSecurityGroup = new SecurityGroup(stack, ec2EFSMaintenanceSecurityGroupName, {
+    vpc,
+    allowAllOutbound: true,
+    securityGroupName: `${deploymentType}-${ec2EFSMaintenanceSecurityGroupName}`,
+  });
+   // EFS connection from EC2 for managing the data
+   efsSG.addIngressRule(
+    Peer.securityGroupId(ec2EFSMaintenanceSecurityGroup.securityGroupId),
+    Port.allTcp(),
+    "Allow EC2 access for managing data",
+  );
 
   // Create the file system
   const factorioDataEFS = new FileSystem(stack, "factorio-server-efs", {
@@ -45,6 +62,20 @@ export function createFargate(stack: Construct) {
     fileSystemName:`${deploymentType}-factorio-server-efs`,
     allowAnonymousAccess:true,
   });
+
+  const factorioDataEFSAccessPoint = new AccessPoint(stack, "factorio-server-efs-access-point",  {
+    fileSystem: factorioDataEFS,
+    path: "/",
+    createAcl: {
+     ownerGid: "1000",
+     ownerUid: "1000",
+     permissions: "777"
+    },
+    posixUser: {
+     uid: "1000",
+     gid: "1000",
+    }
+ })
 
   /**
    * | CPU Value | Memory Value                                    | Operating Systems Supported for AWS Fargate |
@@ -73,7 +104,7 @@ export function createFargate(stack: Construct) {
           fileSystemId: factorioDataEFS.fileSystemId,
         },
       }
-    ]
+    ],
   });
 
   const container = taskDefinition.addContainer("factorio-container", {
@@ -85,8 +116,8 @@ export function createFargate(stack: Construct) {
     }),
   });
 
-  container.addPortMappings({ containerPort: 34197, protocol:Protocol.UDP, hostPort:34197 });
-  container.addPortMappings({ containerPort: 27015, protocol:Protocol.TCP, hostPort:27015 });
+  container.addPortMappings({name:"factorio-udp-mapping", containerPort: 34197, protocol:Protocol.UDP, hostPort:34197 });
+  container.addPortMappings({name:"factorio-tcp-mapping", containerPort: 27015, protocol:Protocol.TCP, hostPort:27015 });
 
   container.addMountPoints({
     containerPath: '/factorio',
@@ -105,7 +136,7 @@ export function createFargate(stack: Construct) {
   efsSG.addIngressRule(
     Peer.securityGroupId(ecsSG.securityGroupId),
     Port.allTcp(),
-    "allow ECS access"
+    "allow ECS access",
   );
 
   ecsSG.addIngressRule(
