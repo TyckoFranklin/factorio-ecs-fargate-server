@@ -13,3 +13,9 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 * `cdk deploy`      deploy this stack to your default AWS account/region
 * `cdk diff`        compare deployed stack with current state
 * `cdk synth`       emits the synthesized CloudFormation template
+
+
+## stack deployment commands
+
+* `cdk deploy factorio-ecs-fargate-server-shared-FactorioEcsFargateServerInfrastructureStack --profile factorio-ecs-fargate-server-cdk-user`
+* `cdk deploy factorio-ecs-fargate-server-development-FactorioEcsFargateServerStack --profile factorio-ecs-fargate-server-cdk-user`
