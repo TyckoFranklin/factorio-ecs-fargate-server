@@ -1,5 +1,20 @@
 # Welcome to the Factorio Elastic Container Service Fargate Server project
 
+# First up: Disclaimer/License
+
+By using or referencing the code provided here, you agree to the following terms:
+
+1. No Warranty: The code is provided "as is" without any warranty, express or implied. The author(s) make no representations or warranties regarding the accuracy or completeness of the code.
+2. Use at Your Own Risk: You acknowledge that the use of this code is at your own risk. The author(s) shall not be liable for any direct, indirect, incidental, special, consequential, or exemplary damages, including but not limited to, damages for loss of profits, goodwill, use, data, or other intangible losses.
+3. Code Modifications: You are free to modify the code for your own purposes. However, any modifications made are your responsibility, and the original author(s) are not obligated to provide support or assistance for modified code.
+4. No Support: The author(s) are not obligated to provide support, maintenance, updates, or enhancements to the code. However, contributions and feedback are welcome.
+5. Compliance with Laws: You agree to use the code in compliance with all applicable laws, regulations, and third-party rights.
+
+By using or referencing this code, you acknowledge that you have read, understood, and agreed to these terms. If you do not agree with these terms, do not use or reference the code.
+
+Please see license file for continuation of the above text. If there are any conflicts between the license file and the above text, the license file will take precedence.
+
+
 ## Setup
 
 ### Initial steps
