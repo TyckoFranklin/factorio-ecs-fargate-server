@@ -1,10 +1,15 @@
 # Welcome to the Factorio Elastic Container Service Fargate Server project
 
 ## Setup
+
 ### Initial steps
 * Use the .env.example as a template to set up the .env with your account number, application name, and region.
-* Make sure you have bootstrapped your account for CDK
+* Install (AWS CLI)[https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html]
+* Make sure you have bootstrapped your account for CDK. (CDK Bootstrapping)[https://docs.aws.amazon.com/cdk/v2/guide/bootstrapping.html]
 * Create a local AWS profile named "factorio-ecs-fargate-server-cdk-user" with the appropriate permissions to deploy CDK stacks.
+ * Create IAM user with administrator access, then create security credentials and save the Access Key and Secret Key
+ * run: aws configure --profile factorio-ecs-fargate-server-cdk-user
+ * follow prompts.
 ### Deployment
 Use the commands below to deploy out the stacks. Start with the infrastructure stack, then deploy the server stack.
 
@@ -12,6 +17,16 @@ Use the commands below to deploy out the stacks. Start with the infrastructure s
 
 * `cdk deploy factorio-ecs-fargate-server-shared-FactorioEcsFargateServerInfrastructureStack --profile factorio-ecs-fargate-server-cdk-user`
 * `cdk deploy factorio-ecs-fargate-server-development-FactorioEcsFargateServerStack --profile factorio-ecs-fargate-server-cdk-user`
+
+## Maintaining the ECS service
+
+Once deployed, there will be many resources created and the server will be switched on.
+In ECS, the main resources created that need to be known about for day to day are: Cluster, Service, and Task.
+After deployment the ECS cluster should have a service that starts a task and the server will be ready to be connected to.
+To stop the server and not be charged for compute time (the bulk of billing for this stack), you can go into the AWS Web Console, to the ECS
+page, then choose the new cluster, select the service, then click the "update service" button and set the desired tasks to 0 to turn stop running the server. To start the server you take the same steps, but you then select 1 for desired task count. Turning the Factorio server on and off is that simple.
+
+Note: On initial deployment, the task in the service might fail the first time as resources are being built, but the ECS cluster service will restart the task in this case and it should work after a few minutes.
 
 ## Maintaining the EFS Data
 The EFS attached to the server stack is where the Factorio docker container will save data. To access this there are at least 2 options. First is to use the execute command from the
@@ -35,3 +50,13 @@ Now you should be able to edit files, upload files, download files, and configur
 Once you are done, "stop" the instance so it won't continue to bill.
 When you start the instance again, you will need to run the mount command once again:
 * sudo mount -t efs <efs id> factorio-efs-mount-point/
+
+# Special Thanks and Reference:
+
+## factorio-spot-pricing
+This CDK was largely inspired by the [factorio-spot-pricing](https://github.com/m-chandler/factorio-spot-pricing) cloud formation template.
+(m-chandler)[https://github.com/m-chandler] created and maintains this GitHub Repo
+
+## (Below Copied from factorio-spot-pricing)
+Thanks goes out to [FactorioTools](https://github.com/factoriotools) ([and contributors](https://github.com/factoriotools/factorio-docker/graphs/contributors)) for maintaining the Factorio Docker images.
+
