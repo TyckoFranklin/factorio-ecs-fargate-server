@@ -35,3 +35,13 @@ Now you should be able to edit files, upload files, download files, and configur
 Once you are done, "stop" the instance so it won't continue to bill.
 When you start the instance again, you will need to run the mount command once again:
 * sudo mount -t efs <efs id> factorio-efs-mount-point/
+
+# Special Thanks and Reference:
+
+## factorio-spot-pricing
+This CDK was largely inspired by the [factorio-spot-pricing](https://github.com/m-chandler/factorio-spot-pricing) cloud formation template.
+(m-chandler)[https://github.com/m-chandler] created and maintains this GitHub Repo
+
+## (Below Copied from factorio-spot-pricing)
+Thanks goes out to [FactorioTools](https://github.com/factoriotools) ([and contributors](https://github.com/factoriotools/factorio-docker/graphs/contributors)) for maintaining the Factorio Docker images.
+
