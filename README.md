@@ -30,8 +30,10 @@ Use the commands below to deploy out the stacks. Start with the infrastructure s
 
 ## Stack deployment commands
 
+* `cdk deploy factorio-ecs-fargate-server-shared-FactorioEcsEc2ServerInfrastructureStack --profile factorio-ecs-fargate-server-cdk-user`
 * `cdk deploy factorio-ecs-fargate-server-shared-FactorioEcsFargateServerInfrastructureStack --profile factorio-ecs-fargate-server-cdk-user`
 * `cdk deploy factorio-ecs-fargate-server-development-FactorioEcsFargateServerStack --profile factorio-ecs-fargate-server-cdk-user`
+* `cdk deploy factorio-ecs-fargate-server-development-FactorioEcsEC2ServerStack --profile factorio-ecs-fargate-server-cdk-user`
 
 ## Maintaining the ECS service
 

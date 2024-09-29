@@ -1,0 +1,1 @@
+FROM factoriotools/factorio:stable

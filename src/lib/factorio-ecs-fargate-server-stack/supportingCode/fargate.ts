@@ -1,11 +1,12 @@
-import { RemovalPolicy } from "aws-cdk-lib";
+import { RemovalPolicy, Tags } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { ManagedPolicy, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
-import { Cluster, Compatibility, ContainerImage, FargateService, LogDriver, NetworkMode, TaskDefinition } from "aws-cdk-lib/aws-ecs";
+import { Cluster, Compatibility, ContainerImage, FargateService, LogDriver, NetworkMode, PropagatedTagSource, TaskDefinition } from "aws-cdk-lib/aws-ecs";
 import { Peer, Port, SecurityGroup, Vpc } from "aws-cdk-lib/aws-ec2";
 import { Protocol } from "aws-cdk-lib/aws-ecs";
 import { LifecyclePolicy, PerformanceMode, ThroughputMode, FileSystem, AccessPoint, } from "aws-cdk-lib/aws-efs";
 import { LogGroup } from "aws-cdk-lib/aws-logs";
+// import * as path  from "path"
 
 export function createFargate(stack: Construct) {
 
@@ -44,14 +45,13 @@ export function createFargate(stack: Construct) {
     allowAllOutbound: true,
     securityGroupName: `${deploymentType}-${ec2EFSMaintenanceSecurityGroupName}`,
   });
-   // EFS connection from EC2 for managing the data
+
    efsSG.addIngressRule(
     Peer.securityGroupId(ec2EFSMaintenanceSecurityGroup.securityGroupId),
     Port.allTcp(),
     "Allow EC2 access for managing data",
   );
 
-  // Create the file system
   const factorioDataEFS = new FileSystem(stack, "factorio-server-efs", {
     vpc,
     lifecyclePolicy: LifecyclePolicy.AFTER_14_DAYS,
@@ -110,6 +110,7 @@ export function createFargate(stack: Construct) {
   const container = taskDefinition.addContainer("factorio-container", {
     containerName:`${deploymentType}-factorio-server-container`,
     image: ContainerImage.fromRegistry("factoriotools/factorio:stable"),
+    // image: ContainerImage.fromAsset(path.join(__dirname)),
     logging: LogDriver.awsLogs({
       streamPrefix: "factorio-server-logs",
       logGroup: logGroup,
@@ -174,5 +175,7 @@ export function createFargate(stack: Construct) {
         weight: 1,
       },
     ],
+    propagateTags: PropagatedTagSource.SERVICE,
   });
+  Tags.of(service).add("name", `${deploymentType}-factorio-server`);
 }

@@ -23,7 +23,7 @@ export function createVPC(stack:Construct) {
   });
 
   const vpcRole = new Role(stack, "RoleVpcFlowLogs", {
-    assumedBy: new ServicePrincipal("vpc-flow-amazonaws.com"),
+    assumedBy: new ServicePrincipal("vpc-flow-logs.amazonaws.com"),
     managedPolicies: [
       ManagedPolicy.fromAwsManagedPolicyName("CloudWatchFullAccess"),
     ],
